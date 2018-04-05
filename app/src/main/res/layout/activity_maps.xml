@@ -1,9 +1,18 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.example.matthew.crimertracker.MapsActivity"
-    android:layout_margin="0dp"/>
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.example.matthew.crimertracker.MapsActivity"
+        android:layout_margin="0dp">
+        <ImageButton
+            android:id="@+id/fab"
+            android:layout_width ="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/policeicon"
+            android:layout_gravity="right|bottom"/>
+    </fragment>
+
