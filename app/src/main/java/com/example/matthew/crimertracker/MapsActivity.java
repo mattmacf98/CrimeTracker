@@ -2,11 +2,14 @@ package com.example.matthew.crimertracker;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -19,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.ImageButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,6 +38,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     LocationManager locationManager;
     LocationListener locationListener;
+    boolean callingEnabled = false;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -42,6 +47,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (grantResults.length > 0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
+            } else if (ContextCompat.checkSelfPermission(this,Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+                callingEnabled = true;
             }
         }
     }
@@ -87,7 +94,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         };
-        //permission checks
+        //permission checks location
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //ask for permission
             ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},1);
@@ -102,6 +109,29 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+
+    public void callCops(View view) {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel","911",null));
+        call(intent);
+    }
+
+    public void callICE(View view) {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel","1234567",null));
+        call(intent);
+    }
+
+    private void call(Intent intent) {
+        //calling permission check
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            //asks for call permission
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE},1);
+        } else {
+            callingEnabled = true;
+        }
+        if (callingEnabled) {
+            startActivity(intent);
+        }
     }
 
     /**
@@ -126,4 +156,5 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,15));
 
     }
+
 }

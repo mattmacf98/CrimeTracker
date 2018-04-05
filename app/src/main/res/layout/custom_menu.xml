@@ -6,8 +6,10 @@
     android:background="@color/colorPrimary">
     <ImageButton
         android:layout_width="wrap_content"
+        android:id="@+id/call_police_but"
         android:layout_height="wrap_content"
         android:src="@drawable/policeicon"
+        android:onClick="callCops"
         android:layout_alignParentLeft="true"/>
     <TextView
         android:layout_width="wrap_content"
@@ -20,6 +22,8 @@
         android:layout_centerVertical="true"/>
     <ImageButton
         android:layout_width="wrap_content"
+        android:id="@+id/call_ice_but"
+        android:onClick="callICE"
         android:layout_height="wrap_content"
         android:src="@drawable/policeicon"
         android:layout_alignParentRight="true"/>
