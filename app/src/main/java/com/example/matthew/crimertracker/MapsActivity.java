@@ -46,7 +46,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (grantResults.length > 0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,1,locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,1,locationListener);
+                myLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                updateMap(myLoc);
             } else if (ContextCompat.checkSelfPermission(this,Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
                 callingEnabled = true;
             }
@@ -70,13 +73,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         actionBar.setCustomView(view);
         actionBar.setDisplayShowCustomEnabled(true);
 
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
+
+    private void setUpLocations() {
         //create location manager
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener(){
 
             @Override
             public void onLocationChanged(Location location) {
-
+                myLoc = location;
+                Log.i("update", "yes");
+                updateMap(myLoc);
             }
 
             @Override
@@ -94,21 +106,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         };
+
         //permission checks location
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //ask for permission
             ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},1);
         } else {
-            //we have permission
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
-            Location lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            myLoc = lastKnown;
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,1,locationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,1,locationListener);
+            myLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            updateMap(myLoc);
         }
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
     }
 
     public void callCops(View view) {
@@ -146,15 +154,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        updateMap(myLoc);
+        setUpLocations();
     }
 
     private void updateMap(Location myLocation) {
         //add marker where you are and center
-        LatLng me = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(me).title("You are here."));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,15));
-
+        Log.i("note", "Asked for location");
+        if (myLocation != null) {
+            Log.i("location:", "doesn't  equal null");
+            LatLng me = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(me).title("You are here."));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,15));
+        } else {
+            Log.i("location", "equals null");
+        }
     }
 
 }
