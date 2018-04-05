@@ -27,10 +27,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
 
         //set up action bar
+        //ActionBar actionBar = getSupportActionBar();
         ActionBar actionBar = getSupportActionBar();
         //inflate menu
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         View view = layoutInflater.inflate(R.layout.custom_menu, null);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setCustomView(view);
         actionBar.setDisplayShowCustomEnabled(true);
 

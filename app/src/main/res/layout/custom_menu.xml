@@ -13,7 +13,9 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:text="Crime Tracker"
-        android:textSize="24dp"
+        android:textSize="30dp"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"/>
     <ImageButton

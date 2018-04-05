@@ -6,13 +6,14 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.example.matthew.crimertracker.MapsActivity"
-        android:layout_margin="0dp">
-        <ImageButton
+        tools:context="com.example.matthew.crimertracker.MapsActivity">
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
-            android:layout_width ="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="bottom|end"
             android:src="@drawable/policeicon"
-            android:layout_gravity="right|bottom"/>
+            android:backgroundTint="#FF0000"
+            android:layout_margin="10dp"/>
     </fragment>
 
