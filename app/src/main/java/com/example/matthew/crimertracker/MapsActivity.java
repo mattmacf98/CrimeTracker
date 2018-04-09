@@ -163,6 +163,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (myLocation != null) {
             Log.i("location:", "doesn't  equal null");
             LatLng me = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+            mMap.clear();
             mMap.addMarker(new MarkerOptions().position(me).title("You are here."));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,15));
         } else {
