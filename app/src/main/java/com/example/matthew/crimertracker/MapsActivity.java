@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toolbar;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -67,11 +68,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ActionBar actionBar = getSupportActionBar();
         //inflate menu
         LayoutInflater layoutInflater = LayoutInflater.from(this);
-        View view = layoutInflater.inflate(R.layout.custom_menu, null);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowHomeEnabled(false);
-        actionBar.setCustomView(view);
         actionBar.setDisplayShowCustomEnabled(true);
+
+        View view = layoutInflater.inflate(R.layout.custom_menu, null);
+        actionBar.setCustomView(view);
+
+        android.support.v7.widget.Toolbar parent = (android.support.v7.widget.Toolbar) view.getParent();
+        parent.setPadding(0,0,0,0);
+        parent.setContentInsetsAbsolute(0,0);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
