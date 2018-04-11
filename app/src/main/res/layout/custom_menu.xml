@@ -5,10 +5,14 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary">
     <ImageButton
+        android:scaleType="fitCenter"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:background="@color/colorPrimary"
         android:layout_width="wrap_content"
         android:id="@+id/call_police_but"
         android:layout_height="wrap_content"
-        android:src="@drawable/policeicon"
+        android:src="@drawable/phone"
         android:onClick="callCops"
         android:layout_alignParentLeft="true"/>
     <TextView
@@ -22,9 +26,13 @@
         android:layout_centerVertical="true"/>
     <ImageButton
         android:layout_width="wrap_content"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:scaleType="fitCenter"
+        android:background="@color/colorPrimary"
         android:id="@+id/call_ice_but"
         android:onClick="callICE"
         android:layout_height="wrap_content"
-        android:src="@drawable/policeicon"
+        android:src="@drawable/phone"
         android:layout_alignParentRight="true"/>
 </RelativeLayout>
