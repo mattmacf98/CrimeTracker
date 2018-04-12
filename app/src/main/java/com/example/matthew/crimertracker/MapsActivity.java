@@ -65,9 +65,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setTitle("Crime Tracker");
         setContentView(R.layout.activity_maps);
 
-        //fab to crime list activity
-        fab = findViewById(R.id.fab);
-
         //set up action bar
         //ActionBar actionBar = getSupportActionBar();
         ActionBar actionBar = getSupportActionBar();

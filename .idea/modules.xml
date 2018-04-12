@@ -4,8 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CrimerTracker.iml" filepath="$PROJECT_DIR$/CrimerTracker.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/team6crime.iml" filepath="$PROJECT_DIR$/team6crime.iml" />
+      <module fileurl="file://C:\Users\Matthew\Desktop\college\school\Sophomore\Spring\UI\Apps\CrimerTracker\team6crime.iml" filepath="C:\Users\Matthew\Desktop\college\school\Sophomore\Spring\UI\Apps\CrimerTracker\team6crime.iml" />
     </modules>
   </component>
 </project>
