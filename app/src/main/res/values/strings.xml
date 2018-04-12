@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">CrimerTracker</string>
     <string name="title_activity_maps">Map</string>
+    <string name="list">list</string>
 </resources>

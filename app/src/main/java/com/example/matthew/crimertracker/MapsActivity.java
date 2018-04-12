@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
     Location myLoc;
+    FloatingActionButton fab;
 
     LocationManager locationManager;
     LocationListener locationListener;
@@ -62,6 +64,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setTitle("Crime Tracker");
         setContentView(R.layout.activity_maps);
+
+        //fab to crime list activity
+        fab = findViewById(R.id.fab);
 
         //set up action bar
         //ActionBar actionBar = getSupportActionBar();
@@ -146,6 +151,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (callingEnabled) {
             startActivity(intent);
         }
+    }
+
+    public void launchCrimeList(View view) {
+        Intent intent = new Intent(this, CrimeList.class);
+        startActivity(intent);
     }
 
     /**
