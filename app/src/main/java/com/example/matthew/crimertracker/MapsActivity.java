@@ -33,6 +33,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
@@ -55,6 +56,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
+    private Marker myMarker;
     Location myLoc;
     FloatingActionButton fab;
 
@@ -70,8 +72,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (grantResults.length > 0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,1,locationListener);
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,1,locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,Integer.MAX_VALUE,5,locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,Integer.MAX_VALUE,5,locationListener);
                 myLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 updateMap(myLoc);
             } else if (ContextCompat.checkSelfPermission(this,Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
@@ -213,8 +215,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             //ask for permission
             ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},1);
         } else {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,1,locationListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,1,locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,Integer.MAX_VALUE,5,locationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,Integer.MAX_VALUE,5,locationListener);
             myLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             updateMap(myLoc);
         }
@@ -243,11 +245,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public void launchCrimeList(View view) {
-        Intent intent = new Intent(this, CrimeList.class);
-        startActivity(intent);
-    }
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -270,7 +267,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (myLocation != null) {
             Log.i("location:", "doesn't  equal null");
             LatLng me = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(me).title("You are here."));
+
+            //remove old marker
+            if (myMarker != null) {
+                myMarker.remove();
+            }
+            myMarker = mMap.addMarker(new MarkerOptions().position(me).title("You are here."));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,15));
         } else {
             Log.i("location", "equals null");
