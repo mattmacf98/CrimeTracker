@@ -3,6 +3,7 @@ package com.example.matthew.crimertracker;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -59,6 +60,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Marker myMarker;
     Location myLoc;
     FloatingActionButton fab;
+    SharedPreferences sp;
 
     LocationManager locationManager;
     LocationListener locationListener;
@@ -72,8 +74,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (grantResults.length > 0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,Integer.MAX_VALUE,5,locationListener);
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,Integer.MAX_VALUE,5,locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,10,5,locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,10,5,locationListener);
                 myLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 updateMap(myLoc);
             } else if (ContextCompat.checkSelfPermission(this,Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
@@ -215,8 +217,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             //ask for permission
             ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},1);
         } else {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,Integer.MAX_VALUE,5,locationListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,Integer.MAX_VALUE,5,locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,10,5,locationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,10,5,locationListener);
             myLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             updateMap(myLoc);
         }
@@ -228,8 +230,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void callICE(View view) {
-        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel","1234567",null));
+        sp = getSharedPreferences("settings", 0);
+        String ICE = sp.getString("ICE_Number","");
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel",ICE,null));
         call(intent);
+    }
+
+    public void goToSettings(View view) {
+        Intent intent = new Intent(this,SettingsPageActivity.class);
+        startActivity(intent);
     }
 
     private void call(Intent intent) {

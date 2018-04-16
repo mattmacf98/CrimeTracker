@@ -14,6 +14,7 @@
             android:layout_gravity="bottom|end"
             android:src="@drawable/gear"
             android:backgroundTint="#FF0000"
+            android:onClick="goToSettings"
             android:layout_margin="10dp"/>
     </fragment>
 
