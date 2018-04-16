@@ -1,0 +1,14 @@
+Meeting notes for 4/10/18
+Members present Anand, matthew, josh
+Issue emulator and location services, min is now 18 untested
+-TEST app make sure still works
+Anand needs to get on github
+Anand and Josh set up getting data from database
+Drew set up notifications 
+Fix up UI for main page. 
+By end of sprint
+Map with user location
+Crime data
+Persistent settings
+
+Considered using the map detail pop-up already present in google maps for our single crime display 
