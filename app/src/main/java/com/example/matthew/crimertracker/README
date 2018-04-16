@@ -1,0 +1,6 @@
+Items Implemented so far:
+    Location tracking and updating
+    sending a call intent from the app
+    heatmap display of crimes in the area
+    settings page that save the data of (notifications on or off, danger alert scale, ICE contact stored)
+    ICE contact is used when button clicked
