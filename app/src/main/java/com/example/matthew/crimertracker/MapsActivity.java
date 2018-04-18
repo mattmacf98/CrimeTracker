@@ -33,6 +33,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -58,6 +59,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
     private Marker myMarker;
+    private ArrayList<LatLng> crimeDataLocations;
+    private ArrayList<Marker> crimePins;
+    private boolean pinsVisible = false;
     Location myLoc;
     FloatingActionButton fab;
     SharedPreferences sp;
@@ -89,6 +93,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setTitle("Crime Tracker");
         setContentView(R.layout.activity_maps);
+
+        //initialize crime pins
+        crimePins = new ArrayList<>();
 
         //set up action bar
         //ActionBar actionBar = getSupportActionBar();
@@ -148,11 +155,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     try {
                         // Build collection of LatLng from crime data locations
                         JSONArray crimeDataJSON = new JSONArray(s);
-                        ArrayList<LatLng> crimeDataLocations = parseLatLngfromCrimeJSON(crimeDataJSON);
+                        crimeDataLocations = parseLatLngfromCrimeJSON(crimeDataJSON);
                         // Build a heatmap provider using LatLng objects and naive clustering
                         mProvider = new HeatmapTileProvider.Builder().data(crimeDataLocations).build();
                         // Add heatmap as overlay to map
                         mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
+                        putInPins();
 
                     } catch (JSONException e){
                         e.printStackTrace();
@@ -286,6 +294,42 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,15));
         } else {
             Log.i("location", "equals null");
+        }
+    }
+
+    private void putInPins() {
+        if (crimeDataLocations != null) {
+            int i = 0;
+            for (LatLng location:crimeDataLocations) {
+                Marker temp = mMap.addMarker(new MarkerOptions().position(location).title("crime"+i).visible(false));
+                crimePins.add(temp);
+                i++;
+            }
+            setUpZoomListener();
+        }
+    }
+
+    private void setUpZoomListener() {
+        mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+                CameraPosition position = mMap.getCameraPosition();
+                if(pinsVisible && position.zoom <= 16.5 ) {
+                    Log.i("zoom is:",Float.toString(position.zoom)+ " pins invisible");
+                    adjustPinVisibility(false);
+                    pinsVisible = false;
+                } else if (!pinsVisible && position.zoom > 16.5) {
+                    Log.i("zoom is:",Float.toString(position.zoom)+ " pins visible");
+                    adjustPinVisibility(true);
+                    pinsVisible = true;
+                }
+            }
+        });
+    }
+
+    private void adjustPinVisibility(boolean visibility) {
+        for (int i = 0; i < crimePins.size(); i++) {
+            crimePins.get(i).setVisible(visibility);
         }
     }
 
