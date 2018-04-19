@@ -1,6 +1,9 @@
 package com.example.matthew.crimertracker;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,6 +20,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -62,6 +67,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<LatLng> crimeDataLocations;
     private ArrayList<Marker> crimePins;
     private boolean pinsVisible = false;
+    private static final int unique_id = 457126;
+    NotificationCompat.Builder notification;
     Location myLoc;
     FloatingActionButton fab;
     SharedPreferences sp;
@@ -93,6 +100,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setTitle("Crime Tracker");
         setContentView(R.layout.activity_maps);
+
+        //set up notification
+        notification = new NotificationCompat.Builder(this, "MY_CHANNEL_ID");
 
         //initialize crime pins
         crimePins = new ArrayList<>();
@@ -245,6 +255,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void goToSettings(View view) {
+        //put in here until we have the intensities from the data
+        notification.setSmallIcon(R.drawable.gear).setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        notification.setContentTitle("DANGEROUS NEIGHBORHOOD").setContentText("You have entered a dangerous neighborhood");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("MY_CHANNEL_ID","crimeTracker", NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("Notification for crimeTracker: entered a bad neighborhood");
+
+            NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        NotificationManager nm =(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        nm.notify(unique_id,notification.build());
+
         Intent intent = new Intent(this,SettingsPageActivity.class);
         startActivity(intent);
     }
