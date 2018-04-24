@@ -1,6 +1,8 @@
 package com.example.matthew.crimertracker;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -28,6 +30,9 @@ public class SettingsPageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings_page);
+        setTitle("Settings");
+        ActionBar bar = getSupportActionBar();
+        bar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
         //sp = getSharedPreferences("Settings", MODE_PRIVATE);
         seekbar = (SeekBar) findViewById(R.id.alert_seek_bar);
         seekbar.setMax(100);

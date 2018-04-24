@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:id="@+id/call_police_but"
         android:layout_height="wrap_content"
-        android:src="@drawable/phone"
+        android:src="@drawable/phonepolice"
         android:onClick="callCops"
         android:layout_alignParentLeft="true"/>
     <TextView
@@ -33,7 +33,7 @@
         android:id="@+id/call_ice_but"
         android:onClick="callICE"
         android:layout_height="wrap_content"
-        android:src="@drawable/phone"
+        android:src="@drawable/phoneice"
         android:layout_alignParentRight="true"/>
 
 </RelativeLayout>
