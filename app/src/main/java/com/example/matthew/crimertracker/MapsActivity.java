@@ -53,6 +53,9 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -64,8 +67,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
     private Marker myMarker;
-    private ArrayList<LatLng> crimeDataLocations;
+    private Set<LatLng> crimeDataLocations;
     private ArrayList<Marker> crimePins;
+    private Map<LatLng, SingleCrime> crimeData;
     private boolean pinsVisible = false;
     private static final int unique_id = 457126;
     NotificationCompat.Builder notification;
@@ -165,7 +169,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     try {
                         // Build collection of LatLng from crime data locations
                         JSONArray crimeDataJSON = new JSONArray(s);
-                        crimeDataLocations = parseLatLngfromCrimeJSON(crimeDataJSON);
+                        crimeData = parseDatafromCrimeJSON(crimeDataJSON);
+                        crimeDataLocations = crimeData.keySet();
+                        //crimeDataLocations = parseLatLngfromCrimeJSON(crimeDataJSON);
                         // Build a heatmap provider using LatLng objects and naive clustering
                         mProvider = new HeatmapTileProvider.Builder().data(crimeDataLocations).build();
                         // Add heatmap as overlay to map
@@ -200,6 +206,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
         return crimesList;
+    }
+
+    /**
+     *
+     * @param crimeDataJSON - json array of crime data fetched from API
+     * @return HashMap<LatLng, SingleCrime> containing LatLng objects mapped to crime data of each crime fetched
+     * @throws JSONException in cases when errors parsing json object (bad fetch)
+     */
+    private Map<LatLng, SingleCrime> parseDatafromCrimeJSON(JSONArray crimeDataJSON) throws JSONException {
+        Map<LatLng, SingleCrime> dataMap = new HashMap<>();
+        for (int i = 0; i < crimeDataJSON.length(); i++) {
+            JSONObject crimeJSON = crimeDataJSON.getJSONObject(i);
+            if (crimeJSON.has("latitude") && crimeJSON.has("longitude")) {
+                LatLng tempLatLng = new LatLng(crimeJSON.getDouble("latitude"),
+                        crimeJSON.getDouble("longitude"));
+                if (crimeJSON.has("crimedate") && crimeJSON.has("neighborhood") && crimeJSON.has("description") && crimeJSON.has("premise") && crimeJSON.has("weapon")) {
+                    SingleCrime tempSC = new SingleCrime(crimeJSON.getString("crimedate"), crimeJSON.getString("neighborhood"), crimeJSON.getString("description"), crimeJSON.getString("premise"), crimeJSON.getString("weapon"));
+                    dataMap.put(tempLatLng, tempSC);
+                }
+            }
+        }
+        return dataMap;
     }
 
     private void setUpLocations() {
