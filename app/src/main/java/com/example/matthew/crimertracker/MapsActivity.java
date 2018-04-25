@@ -88,7 +88,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,10,5,locationListener);
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,10,5,locationListener);
                 myLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                updateMap(myLoc);
+                setUpLocations();
             } else if (ContextCompat.checkSelfPermission(this,Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
                 callingEnabled = true;
             }
@@ -136,8 +136,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     public void addHeatMapOverlay() {
         // Create request for baltimore city data api endpoint
-        String baltimoreURL = "http://data.baltimorecity.gov/resource/4ih5-d5d5.json";
-        final Request request = new Request.Builder()
+        String baseURL = "http://data.baltimorecity.gov/resource/4ih5-d5d5.json";
+        // String baltimoreURL = baltimoreURL + "?$where=crimedate between " + timeStamp + " and " +
+        String baltimoreURL = baseURL + "?$limit=50000&$where=crimedate between '2018' and '2019'";
+        Log.d("url", baltimoreURL);
+        final Request request2018 = new Request.Builder()
                 .url(baltimoreURL)
                 .build();
 
@@ -147,11 +150,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             protected String doInBackground(Void... params) {
                 try {
                     // Get request using okhttp client
-                    Response response = client.newCall(request).execute();
-                    if (!response.isSuccessful()) {
+                    Response response2018 = client.newCall(request2018).execute();
+                    if (!response2018.isSuccessful()) {
                         return null;
                     }
-                    return response.body().string();
+                    String crimes2018 = response2018.body().string();
+                    return crimes2018;
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Error fetching crime data", Toast.LENGTH_LONG).show();
                     e.printStackTrace();
@@ -191,6 +195,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * @throws JSONException in cases when errors parsing json object (bad fetch)
      */
     private ArrayList<LatLng> parseLatLngfromCrimeJSON(JSONArray crimeDataJSON) throws JSONException {
+        Log.d("Num crimes", Integer.toString(crimeDataJSON.length()));
         ArrayList<LatLng> crimesList = new ArrayList<>();
         for (int i = 0; i < crimeDataJSON.length(); i++) {
             JSONObject crimeJSON = crimeDataJSON.getJSONObject(i);
@@ -211,7 +216,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onLocationChanged(Location location) {
                 myLoc = location;
                 Log.i("updateOnLocationChanged", "yes");
-                updateMap(myLoc);
+                //updateMap(myLoc);
             }
 
             @Override
@@ -238,7 +243,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,10,5,locationListener);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,10,5,locationListener);
             myLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            updateMap(myLoc);
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMapToolbarEnabled(false);
+            mMap.getUiSettings().setZoomControlsEnabled(false);
+            if (myLoc != null) {
+                LatLng me = new LatLng(myLoc.getLatitude(), myLoc.getLongitude());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,13));
+            }
         }
     }
 
@@ -316,7 +327,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 myMarker.remove();
             } else {
                 //only center if no pin to begin ie first time getting location
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,15));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,13));
             }
             myMarker = mMap.addMarker(new MarkerOptions().position(me).title("You are here."));
         } else {
@@ -341,11 +352,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onCameraMove() {
                 CameraPosition position = mMap.getCameraPosition();
-                if(pinsVisible && position.zoom <= 16.5 ) {
+                if(pinsVisible && position.zoom <= 16) {
                     Log.i("zoom is:",Float.toString(position.zoom)+ " pins invisible");
                     adjustPinVisibility(false);
                     pinsVisible = false;
-                } else if (!pinsVisible && position.zoom > 16.5) {
+                } else if (!pinsVisible && position.zoom > 16) {
                     Log.i("zoom is:",Float.toString(position.zoom)+ " pins visible");
                     adjustPinVisibility(true);
                     pinsVisible = true;
