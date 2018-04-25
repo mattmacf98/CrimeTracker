@@ -174,7 +174,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mProvider = new HeatmapTileProvider.Builder().data(crimeDataLocations).build();
                         // Add heatmap as overlay to map
                         mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
-                        putInPins();
+                        setUpZoomListener();
 
                     } catch (JSONException e){
                         e.printStackTrace();
@@ -200,8 +200,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         for (int i = 0; i < crimeDataJSON.length(); i++) {
             JSONObject crimeJSON = crimeDataJSON.getJSONObject(i);
             if (crimeJSON.has("latitude") && crimeJSON.has("longitude")) {
-                crimesList.add(new LatLng(crimeJSON.getDouble("latitude"),
-                        crimeJSON.getDouble("longitude")));
+                LatLng crimeLoc = new LatLng(crimeJSON.getDouble("latitude"),
+                        crimeJSON.getDouble("longitude"));
+                crimesList.add(crimeLoc);
+                Marker tempPin = mMap.addMarker(new MarkerOptions()
+                        .position(crimeLoc)
+                        .title(crimeJSON.get("description").toString())
+                        .snippet(crimeJSON.get("crimedate").toString().split("T")[0])
+                        .visible(false));
+                crimePins.add(tempPin);
             }
         }
         return crimesList;
@@ -332,18 +339,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             myMarker = mMap.addMarker(new MarkerOptions().position(me).title("You are here."));
         } else {
             Log.i("location", "equals null");
-        }
-    }
-
-    private void putInPins() {
-        if (crimeDataLocations != null) {
-            int i = 0;
-            for (LatLng location:crimeDataLocations) {
-                Marker temp = mMap.addMarker(new MarkerOptions().position(location).title("crime"+i).visible(false));
-                crimePins.add(temp);
-                i++;
-            }
-            setUpZoomListener();
         }
     }
 
