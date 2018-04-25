@@ -314,9 +314,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             //remove old marker
             if (myMarker != null) {
                 myMarker.remove();
+            } else {
+                //only center if no pin to begin ie first time getting location
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,15));
             }
             myMarker = mMap.addMarker(new MarkerOptions().position(me).title("You are here."));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,15));
         } else {
             Log.i("location", "equals null");
         }
