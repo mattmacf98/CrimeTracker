@@ -1,37 +1,34 @@
 package com.example.matthew.crimertracker;
 
 import android.Manifest;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.provider.ContactsContract;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.Toolbar;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -44,14 +41,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import okhttp3.OkHttpClient;
@@ -203,10 +198,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 LatLng crimeLoc = new LatLng(crimeJSON.getDouble("latitude"),
                         crimeJSON.getDouble("longitude"));
                 crimesList.add(crimeLoc);
+                String snippetText = crimeJSON.get("crimedate").toString().split("T")[0];
+                if (crimeJSON.has("neighborhood")) {
+                    snippetText = snippetText + "\n" +
+                            "Neighborhood: " + crimeJSON.get("neighborhood").toString();
+                }
+                if (crimeJSON.has("weapon")) {
+                    snippetText = snippetText + "\n" +
+                            "Weapon: " + crimeJSON.get("weapon").toString();
+                }
                 Marker tempPin = mMap.addMarker(new MarkerOptions()
                         .position(crimeLoc)
                         .title(crimeJSON.get("description").toString())
-                        .snippet(crimeJSON.get("crimedate").toString().split("T")[0])
+                        .snippet(snippetText)
                         .visible(false));
                 crimePins.add(tempPin);
             }
@@ -305,6 +309,38 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    private void setupInfoWindowAdapter() {
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+
+                LinearLayout info = new LinearLayout(getApplicationContext());
+                info.setOrientation(LinearLayout.VERTICAL);
+
+                TextView title = new TextView(getApplicationContext());
+                title.setTextColor(Color.BLACK);
+                title.setGravity(Gravity.CENTER);
+                title.setTypeface(null, Typeface.BOLD);
+                title.setText(marker.getTitle());
+
+                TextView snippet = new TextView(getApplicationContext());
+                snippet.setTextColor(Color.GRAY);
+                snippet.setText(marker.getSnippet());
+
+                info.addView(title);
+                info.addView(snippet);
+
+                return info;
+            }
+        });
+    }
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -320,6 +356,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setMinZoomPreference(11);
         setUpLocations();
         addHeatMapOverlay();
+        setupInfoWindowAdapter();
     }
 
     private void updateMap(Location myLocation) {
