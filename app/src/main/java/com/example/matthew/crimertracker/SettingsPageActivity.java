@@ -34,22 +34,30 @@ public class SettingsPageActivity extends AppCompatActivity {
         ActionBar bar = getSupportActionBar();
         bar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
         //sp = getSharedPreferences("Settings", MODE_PRIVATE);
+        //get values and set up editor
+        sp = getSharedPreferences("settings", 0);
+        editor = sp.edit();
+        progress = sp.getInt("progress",0);
+        ICE_Number = sp.getString("ICE_Number","");
+        progress = sp.getInt("progress",0);
+        ICE_Number = sp.getString("ICE_Number","");
+        checkBoxValue = sp.getBoolean("CheckBoxValue",false);
+
+        //set up seekbar
         seekbar = (SeekBar) findViewById(R.id.alert_seek_bar);
         seekbar.setMax(100);
         seekbar.setProgress(progress);
-        sp = getSharedPreferences("settings", 0);
-        editor = sp.edit();
-        final EditText ICE_Number_Edit_Text;
-        progress = sp.getInt("progress",0);
-        ICE_Number = sp.getString("ICE_Number","");
+
+        //set up notifications check box
         notifications_check_box = (CheckBox) findViewById(R.id.notifications_check_box);
-        checkBoxValue = sp.getBoolean("CheckBoxValue",false);
         notifications_check_box.setChecked(checkBoxValue);
+
+        //set up ICE input
+        final EditText ICE_Number_Edit_Text;
         ICE_Number_Edit_Text = (EditText) findViewById(R.id.ICE_Number_Edit_Text);
         ICE_Number_Edit_Text.setText(ICE_Number, TextView.BufferType.EDITABLE);
 
-
-
+        //set up alert text view
         alert_textView = (TextView) findViewById(R.id.alert_text_view_display_int);
         alert_textView.setText(""+progress);
 
