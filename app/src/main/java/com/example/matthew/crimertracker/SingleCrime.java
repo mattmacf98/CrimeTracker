@@ -19,39 +19,43 @@ public class SingleCrime {
         this.weapon = wp;
     }
 
-    private String getCrimeDate() {
+    public String getCrimeDate() {
         return this.crimeDate;
     }
 
-    private String getNeighborhood() {
+    public String getNeighborhood() {
         return this.neighborhood;
     }
 
-    private String getDescription() {
+    public String getDescription() {
         return this.description;
     }
 
-    private String getPremise() {
+    public String getPremise() {
         return this.premise;
     }
 
-    private String getWeapon() {
+    public String getWeapon() {
         return this.weapon;
     }
 
-    private void setCrimeDate(String cd) {
+    public void setCrimeDate(String cd) {
         this.crimeDate = cd;
     }
 
-    private void setDescription(String des) {
+    public void setDescription(String des) {
         this.description = des;
     }
 
-    private void setPremise(String prem) {
+    public void setPremise(String prem) {
         this.premise = prem;
     }
 
-    private void setWeapon(String wp) {
+    public void setWeapon(String wp) {
         this.weapon = wp;
+    }
+
+    public String toString() {
+        return "crimedate: " + this.crimeDate;
     }
 }

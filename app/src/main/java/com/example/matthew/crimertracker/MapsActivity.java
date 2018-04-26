@@ -1,6 +1,8 @@
 package com.example.matthew.crimertracker;
 
 import android.Manifest;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -30,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toolbar;
 import android.widget.Toast;
@@ -61,7 +64,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
     private HeatmapTileProvider mProvider;
@@ -104,6 +107,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setTitle("Crime Tracker");
         setContentView(R.layout.activity_maps);
+
 
         //set up notification
         notification = new NotificationCompat.Builder(this, "MY_CHANNEL_ID");
@@ -355,11 +359,35 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             int i = 0;
             for (LatLng location:crimeDataLocations) {
                 Marker temp = mMap.addMarker(new MarkerOptions().position(location).title("crime"+i).visible(false));
+                temp.setTag(crimeData.get(location));
                 crimePins.add(temp);
                 i++;
             }
+            mMap.setOnMarkerClickListener(this);
             setUpZoomListener();
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker mark) {
+        SingleCrime temp = (SingleCrime) mark.getTag();
+        Log.d("temp", temp.toString());
+        Bundle data = new Bundle();
+        data.putString("crimedate", temp.getCrimeDate());
+        data.putString("neighborhood", temp.getNeighborhood());
+        data.putString("description", temp.getDescription());
+        data.putString("premise", temp.getPremise());
+        data.putString("weapon", temp.getWeapon());
+        Fragment crimeDetail = getSupportFragmentManager().findFragmentById(R.id.CrimeDetails);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        crimeDetail.setArguments(data);
+
+        ft.replace(R.id.map, crimeDetail);
+        ft.addToBackStack(null);
+
+        // Commit the transaction
+        ft.commit();
+        return true;
     }
 
     private void setUpZoomListener() {
