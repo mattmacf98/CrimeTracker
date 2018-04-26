@@ -133,7 +133,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Create request for baltimore city data api endpoint
         String baseURL = "http://data.baltimorecity.gov/resource/4ih5-d5d5.json";
         // String baltimoreURL = baltimoreURL + "?$where=crimedate between " + timeStamp + " and " +
-        String baltimoreURL = baseURL + "?$limit=50000&$where=crimedate between '2018' and '2019'";
+        String baltimoreURL = baseURL + "?$limit=2500&$where=crimedate between '2018' and '2019'";
         Log.d("url", baltimoreURL);
         final Request request2018 = new Request.Builder()
                 .url(baltimoreURL)
