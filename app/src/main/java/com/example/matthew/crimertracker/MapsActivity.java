@@ -35,6 +35,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -54,6 +55,12 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    //weights
+    //Property crimes --yellow
+    //physical victim crimes - orange
+    //physical victim and a weapon - red
+
 
     private GoogleMap mMap;
     private HeatmapTileProvider mProvider;
@@ -206,7 +213,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     snippetText = snippetText + "\n" +
                             "Neighborhood: " + crimeJSON.get("neighborhood").toString();
                 }
+                String weapon = "";
                 if (crimeJSON.has("weapon")) {
+                    weapon = crimeJSON.get("weapon").toString();
                     snippetText = snippetText + "\n" +
                             "Weapon: " + crimeJSON.get("weapon").toString();
                 }
@@ -214,6 +223,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .position(crimeLoc)
                         .title(crimeJSON.get("description").toString())
                         .snippet(snippetText)
+                        .icon(BitmapDescriptorFactory.defaultMarker(getAssociatedColor(crimeJSON.get("description").toString(),weapon)))
                         .visible(false));
                 crimePins.add(tempPin);
             }
@@ -407,6 +417,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         for (int i = 0; i < crimePins.size(); i++) {
             crimePins.get(i).setVisible(visibility);
         }
+    }
+
+    private float getAssociatedColor(String desc, String weapon) {
+        if (desc.contains("BURGLARY") || desc.contains("LARCENY") || desc.contains("ROBBERY") || desc.contains("THEFT")) {
+            return BitmapDescriptorFactory.HUE_YELLOW;
+        } else if (desc.contains("ASSAULT BY THREAT") || desc.contains("RAPE") || desc.contains("COMMON ASSAULT") || (desc.contains("AGG. ASSAULT")&& (weapon.contains("HAND") || weapon.contains("OTHER")))) {
+            return BitmapDescriptorFactory.HUE_ORANGE;
+        } else if (desc.contains("SHOOTING") || desc.contains("AGG. ASSAULT")) {
+            return BitmapDescriptorFactory.HUE_RED;
+        }
+
+        return BitmapDescriptorFactory.HUE_AZURE;
     }
 
 }
