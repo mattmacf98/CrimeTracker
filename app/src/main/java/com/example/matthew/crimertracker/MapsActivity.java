@@ -43,6 +43,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
+import com.google.maps.android.heatmaps.WeightedLatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,16 +58,16 @@ import okhttp3.Response;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     //weights
-    //Property crimes --yellow
-    //physical victim crimes - orange
-    //physical victim and a weapon - red
+    //Property crimes --yellow weight 1
+    //physical victim crimes - orange weight 5
+    //physical victim and a weapon - red weight 10
 
 
     private GoogleMap mMap;
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
     private Marker myMarker;
-    private ArrayList<LatLng> crimeDataLocations;
+    private ArrayList<WeightedLatLng> weightedCrimeDataLocations;
     private ArrayList<Marker> crimePins;
     private boolean pinsVisible = false;
     private static final int unique_id = 457126;
@@ -174,9 +175,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     try {
                         // Build collection of LatLng from crime data locations
                         JSONArray crimeDataJSON = new JSONArray(s);
-                        crimeDataLocations = parseLatLngfromCrimeJSON(crimeDataJSON);
+                        weightedCrimeDataLocations = parseLatLngfromCrimeJSON(crimeDataJSON);
                         // Build a heatmap provider using LatLng objects and naive clustering
-                        mProvider = new HeatmapTileProvider.Builder().data(crimeDataLocations).build();
+                        mProvider = new HeatmapTileProvider.Builder().weightedData(weightedCrimeDataLocations).build();
                         // Add heatmap as overlay to map
                         mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
                         setUpZoomListener();
@@ -199,15 +200,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * @return ArrayList<LatLng> containing LatLng objects of each crime fetched
      * @throws JSONException in cases when errors parsing json object (bad fetch)
      */
-    private ArrayList<LatLng> parseLatLngfromCrimeJSON(JSONArray crimeDataJSON) throws JSONException {
+    private ArrayList<WeightedLatLng> parseLatLngfromCrimeJSON(JSONArray crimeDataJSON) throws JSONException {
         Log.d("Num crimes", Integer.toString(crimeDataJSON.length()));
-        ArrayList<LatLng> crimesList = new ArrayList<>();
+        ArrayList<WeightedLatLng> crimesList = new ArrayList<>();
+        LatLng crimeLoc;
+        double intensity;
         for (int i = 0; i < crimeDataJSON.length(); i++) {
             JSONObject crimeJSON = crimeDataJSON.getJSONObject(i);
             if (crimeJSON.has("latitude") && crimeJSON.has("longitude")) {
-                LatLng crimeLoc = new LatLng(crimeJSON.getDouble("latitude"),
+                crimeLoc = new LatLng(crimeJSON.getDouble("latitude"),
                         crimeJSON.getDouble("longitude"));
-                crimesList.add(crimeLoc);
                 String snippetText = crimeJSON.get("crimedate").toString().split("T")[0];
                 if (crimeJSON.has("neighborhood")) {
                     snippetText = snippetText + "\n" +
@@ -219,11 +221,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     snippetText = snippetText + "\n" +
                             "Weapon: " + crimeJSON.get("weapon").toString();
                 }
+                float[] crimeIntensity = getAssociatedColor(crimeJSON.get("description").toString(),weapon);
+                float color = crimeIntensity[0];
+                intensity = crimeIntensity[1];
+                crimesList.add(new WeightedLatLng(crimeLoc,intensity));
                 Marker tempPin = mMap.addMarker(new MarkerOptions()
                         .position(crimeLoc)
                         .title(crimeJSON.get("description").toString())
                         .snippet(snippetText)
-                        .icon(BitmapDescriptorFactory.defaultMarker(getAssociatedColor(crimeJSON.get("description").toString(),weapon)))
+                        .icon(BitmapDescriptorFactory.defaultMarker(color))
                         .visible(false));
                 crimePins.add(tempPin);
             }
@@ -419,16 +425,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private float getAssociatedColor(String desc, String weapon) {
+    private float[] getAssociatedColor(String desc, String weapon) {
         if (desc.contains("BURGLARY") || desc.contains("LARCENY") || desc.contains("ROBBERY") || desc.contains("THEFT")) {
-            return BitmapDescriptorFactory.HUE_YELLOW;
+            return new float[]{BitmapDescriptorFactory.HUE_YELLOW,1.0f};
         } else if (desc.contains("ASSAULT BY THREAT") || desc.contains("RAPE") || desc.contains("COMMON ASSAULT") || (desc.contains("AGG. ASSAULT")&& (weapon.contains("HAND") || weapon.contains("OTHER")))) {
-            return BitmapDescriptorFactory.HUE_ORANGE;
+            return new float[]{BitmapDescriptorFactory.HUE_ORANGE,5.0f};
         } else if (desc.contains("SHOOTING") || desc.contains("AGG. ASSAULT")) {
-            return BitmapDescriptorFactory.HUE_RED;
+            return new float[]{BitmapDescriptorFactory.HUE_RED,10.0f};
         }
 
-        return BitmapDescriptorFactory.HUE_AZURE;
+        return new float[]{BitmapDescriptorFactory.HUE_AZURE,0.0f};
     }
 
 }
