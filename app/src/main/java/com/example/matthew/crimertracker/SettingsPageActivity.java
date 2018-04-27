@@ -1,5 +1,6 @@
 package com.example.matthew.crimertracker;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBar;
@@ -7,6 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -42,6 +46,7 @@ public class SettingsPageActivity extends AppCompatActivity {
         progress = sp.getInt("progress",0);
         ICE_Number = sp.getString("ICE_Number","");
         checkBoxValue = sp.getBoolean("CheckBoxValue",false);
+
 
         //set up seekbar
         seekbar = (SeekBar) findViewById(R.id.alert_seek_bar);
@@ -118,13 +123,24 @@ public class SettingsPageActivity extends AppCompatActivity {
 
         ICE_Number_Edit_Text.addTextChangedListener(tw);
 
-
-
-
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.settings_navbar,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-
-
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        switch(item.getItemId()) {
+            case R.id.exit:
+                finish();
+                return true;
+            default:
+                return false;
+        }
+    }
 }

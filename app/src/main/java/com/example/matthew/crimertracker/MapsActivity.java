@@ -96,6 +96,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setTitle("Crime Tracker");
         setContentView(R.layout.activity_maps);
 
+        //set up share prefrences
+        sp = getSharedPreferences("settings", 0);
+
         //set up notification
         notification = new NotificationCompat.Builder(this, "MY_CHANNEL_ID");
 
@@ -227,7 +230,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onLocationChanged(Location location) {
                 myLoc = location;
                 Log.i("updateOnLocationChanged", "yes");
-                //updateMap(myLoc);
+                updateMap(myLoc);
             }
 
             @Override
@@ -270,27 +273,30 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void callICE(View view) {
-        sp = getSharedPreferences("settings", 0);
         String ICE = sp.getString("ICE_Number","");
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel",ICE,null));
         call(intent);
     }
 
     public void goToSettings(View view) {
+
         //put in here until we have the intensities from the data
-        notification.setSmallIcon(R.drawable.gear).setPriority(NotificationCompat.PRIORITY_DEFAULT);
-        notification.setContentTitle("DANGEROUS NEIGHBORHOOD").setContentText("You have entered a dangerous neighborhood");
+        boolean notifications_on = sp.getBoolean("CheckBoxValue",false);
+        if (notifications_on) {
+            notification.setSmallIcon(R.drawable.gear).setPriority(NotificationCompat.PRIORITY_DEFAULT);
+            notification.setContentTitle("DANGEROUS NEIGHBORHOOD").setContentText("You have entered a dangerous neighborhood");
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("MY_CHANNEL_ID","crimeTracker", NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription("Notification for crimeTracker: entered a bad neighborhood");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel("MY_CHANNEL_ID","crimeTracker", NotificationManager.IMPORTANCE_DEFAULT);
+                channel.setDescription("Notification for crimeTracker: entered a bad neighborhood");
 
-            NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.createNotificationChannel(channel);
+                NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+                notificationManager.createNotificationChannel(channel);
+            }
+
+            NotificationManager nm =(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            nm.notify(unique_id,notification.build());
         }
-
-        NotificationManager nm =(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        nm.notify(unique_id,notification.build());
 
         Intent intent = new Intent(this,SettingsPageActivity.class);
         startActivity(intent);
@@ -373,7 +379,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //only center if no pin to begin ie first time getting location
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me,13));
             }
-            myMarker = mMap.addMarker(new MarkerOptions().position(me).title("You are here."));
+            myMarker = mMap.addMarker(new MarkerOptions().position(me).title("You are here.").visible(false));
         } else {
             Log.i("location", "equals null");
         }
