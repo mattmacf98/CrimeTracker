@@ -206,31 +206,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng crimeLoc;
         double intensity;
         for (int i = 0; i < crimeDataJSON.length(); i++) {
+            SingleCrime tempCrime = new SingleCrime();
             JSONObject crimeJSON = crimeDataJSON.getJSONObject(i);
             if (crimeJSON.has("latitude") && crimeJSON.has("longitude")) {
                 crimeLoc = new LatLng(crimeJSON.getDouble("latitude"),
                         crimeJSON.getDouble("longitude"));
-                String snippetText = crimeJSON.get("crimedate").toString().split("T")[0];
+                tempCrime.crimeDate = crimeJSON.get("crimedate").toString().split("T")[0];
                 if (crimeJSON.has("neighborhood")) {
-                    snippetText = snippetText + "\n" +
-                            "Neighborhood: " + crimeJSON.get("neighborhood").toString();
+                    tempCrime.neighborhood = crimeJSON.get("neighborhood").toString();
                 }
-                String weapon = "";
                 if (crimeJSON.has("weapon")) {
-                    weapon = crimeJSON.get("weapon").toString();
-                    snippetText = snippetText + "\n" +
-                            "Weapon: " + crimeJSON.get("weapon").toString();
+                    tempCrime.weapon = crimeJSON.get("weapon").toString();
                 }
-                float[] crimeIntensity = getAssociatedColor(crimeJSON.get("description").toString(),weapon);
+                if (crimeJSON.has("premise")) {
+                    tempCrime.premise = crimeJSON.get("premise").toString();
+                }
+                if (crimeJSON.has("description")) {
+                    tempCrime.description = crimeJSON.get("description").toString();
+                }
+                float[] crimeIntensity = getAssociatedColor(crimeJSON.get("description").toString(),tempCrime.weapon);
                 float color = crimeIntensity[0];
                 intensity = crimeIntensity[1];
                 crimesList.add(new WeightedLatLng(crimeLoc,intensity));
                 Marker tempPin = mMap.addMarker(new MarkerOptions()
                         .position(crimeLoc)
-                        .title(crimeJSON.get("description").toString())
-                        .snippet(snippetText)
                         .icon(BitmapDescriptorFactory.defaultMarker(color))
                         .visible(false));
+                tempPin.setTag(tempCrime);
                 crimePins.add(tempPin);
             }
         }
@@ -342,6 +344,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public View getInfoContents(Marker marker) {
 
+                SingleCrime cur = (SingleCrime) marker.getTag();
                 LinearLayout info = new LinearLayout(getApplicationContext());
                 info.setOrientation(LinearLayout.VERTICAL);
 
@@ -349,14 +352,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 title.setTextColor(Color.BLACK);
                 title.setGravity(Gravity.CENTER);
                 title.setTypeface(null, Typeface.BOLD);
-                title.setText(marker.getTitle());
+                title.setText("Description: " + cur.description);
 
-                TextView snippet = new TextView(getApplicationContext());
-                snippet.setTextColor(Color.GRAY);
-                snippet.setText(marker.getSnippet());
+                TextView nb = new TextView(getApplicationContext());
+                nb.setTextColor(Color.GRAY);
+                nb.setText("Neighborhood: " + cur.neighborhood);
+
+                TextView date = new TextView(getApplicationContext());
+                date.setTextColor(Color.GRAY);
+                date.setText("Date: " + cur.crimeDate);
+
+                TextView wp = new TextView(getApplicationContext());
+                wp.setTextColor(Color.GRAY);
+                wp.setText("Weapon: " + cur.weapon);
 
                 info.addView(title);
-                info.addView(snippet);
+                info.addView(nb);
+                info.addView(date);
+                info.addView(wp);
 
                 return info;
             }
