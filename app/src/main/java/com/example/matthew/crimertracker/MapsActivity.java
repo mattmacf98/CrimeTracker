@@ -362,14 +362,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 date.setTextColor(Color.GRAY);
                 date.setText("Date: " + cur.crimeDate);
 
-                TextView wp = new TextView(getApplicationContext());
-                wp.setTextColor(Color.GRAY);
-                wp.setText("Weapon: " + cur.weapon);
 
                 info.addView(title);
                 info.addView(nb);
                 info.addView(date);
-                info.addView(wp);
+
+                if (cur.weapon != null) {
+                    TextView wp = new TextView(getApplicationContext());
+                    wp.setTextColor(Color.GRAY);
+                    wp.setText("Weapon: " + cur.weapon);
+                    info.addView(wp);
+                }
+
 
                 return info;
             }
