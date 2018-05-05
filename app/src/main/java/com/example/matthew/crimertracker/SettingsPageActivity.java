@@ -43,8 +43,6 @@ public class SettingsPageActivity extends AppCompatActivity {
         editor = sp.edit();
         progress = sp.getInt("progress",0);
         ICE_Number = sp.getString("ICE_Number","");
-        progress = sp.getInt("progress",0);
-        ICE_Number = sp.getString("ICE_Number","");
         checkBoxValue = sp.getBoolean("CheckBoxValue",false);
 
 

@@ -50,6 +50,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -69,6 +70,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Marker myMarker;
     private ArrayList<WeightedLatLng> weightedCrimeDataLocations;
     private ArrayList<Marker> crimePins;
+    private ArrayList<Float> pinIntensity;
     private boolean pinsVisible = false;
     private static final int unique_id = 457126;
     NotificationCompat.Builder notification;
@@ -112,6 +114,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //initialize crime pins
         crimePins = new ArrayList<>();
+        pinIntensity = new ArrayList<>();
 
         //set up action bar
         //ActionBar actionBar = getSupportActionBar();
@@ -234,6 +237,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .visible(false));
                 tempPin.setTag(tempCrime);
                 crimePins.add(tempPin);
+                pinIntensity.add(crimeIntensity[1]);
+
             }
         }
         return crimesList;
@@ -249,6 +254,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 myLoc = location;
                 Log.i("updateOnLocationChanged", "yes");
                 updateMap(myLoc);
+                updateDangerLevel(myLoc);
             }
 
             @Override
@@ -285,20 +291,30 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public void callCops(View view) {
-        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel","911",null));
-        call(intent);
+    private void updateDangerLevel(Location myLoc) {
+        float dangerLevel = 0;
+        float radius = 500;
+        int danger_threshold = sp.getInt("progress",0);
+
+        Location crime = new Location("");
+        for (int i = 0; i < crimePins.size(); i++) {
+                   crime.setLongitude(crimePins.get(i).getPosition().longitude);
+                   crime.setLatitude(crimePins.get(i).getPosition().latitude);
+
+                   if (myLoc.distanceTo(crime)<=radius) {
+                       dangerLevel += pinIntensity.get(i);
+                   }
+        }
+        Log.i("Danger Level", dangerLevel+ "");
+        Log.i("Danger Threshold",danger_threshold+"");
+
+        if (dangerLevel >= danger_threshold) {
+            Log.i("danger","yes");
+            notifyUser();
+        }
     }
 
-    public void callICE(View view) {
-        String ICE = sp.getString("ICE_Number","");
-        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel",ICE,null));
-        call(intent);
-    }
-
-    public void goToSettings(View view) {
-
-        //put in here until we have the intensities from the data
+    private  void  notifyUser() {
         boolean notifications_on = sp.getBoolean("CheckBoxValue",false);
         if (notifications_on) {
             notification.setSmallIcon(R.drawable.gear).setPriority(NotificationCompat.PRIORITY_DEFAULT);
@@ -315,7 +331,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             NotificationManager nm =(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             nm.notify(unique_id,notification.build());
         }
+    }
 
+    public void callCops(View view) {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel","911",null));
+        call(intent);
+    }
+
+    public void callICE(View view) {
+        String ICE = sp.getString("ICE_Number","");
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel",ICE,null));
+        call(intent);
+    }
+
+    public void goToSettings(View view) {
         Intent intent = new Intent(this,SettingsPageActivity.class);
         startActivity(intent);
     }
